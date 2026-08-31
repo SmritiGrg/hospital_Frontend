@@ -1,0 +1,277 @@
+@import url("https://fonts.googleapis.com/css2?family=Archivo:ital,wdth,wght@0,74,300;0,74,800;1,74,300&family=IBM+Plex+Mono:wght@400;500&display=swap");
+
+@import "tailwindcss";
+@import "tw-animate-css";
+
+@custom-variant dark (&:is(.dark *));
+
+/*
+ * AURELIA MEDICAL CENTER — design system
+ * Navy / ice / healthcare blue. Archivo Variable display + IBM Plex Mono furniture.
+ */
+
+@theme inline {
+  --radius-sm: calc(var(--radius) - 4px);
+  --radius-md: calc(var(--radius) - 2px);
+  --radius-lg: var(--radius);
+  --radius-xl: calc(var(--radius) + 4px);
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
+  --color-popover: var(--popover);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-secondary: var(--secondary);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-destructive: var(--destructive);
+  --color-destructive-foreground: var(--destructive-foreground);
+  --color-border: var(--border);
+  --color-input: var(--input);
+  --color-ring: var(--ring);
+
+  /* Brand ground scale */
+  --color-navy: var(--navy);
+  --color-navy-2: var(--navy-2);
+  --color-sky: var(--sky);
+  --color-ice: var(--ice);
+  --color-paper: var(--paper);
+  --color-ink: var(--ink);
+  --color-blue: var(--blue);
+  --color-blue-soft: var(--blue-soft);
+
+  --font-display: "Archivo", "Archivo Variable", sans-serif;
+  --font-mono: "IBM Plex Mono", ui-monospace, monospace;
+  --font-sans: "Archivo", sans-serif;
+}
+
+:root {
+  --radius: 0.25rem;
+
+  --navy: oklch(0.2088 0.0405 244.05); /* #071B2C */
+  --navy-2: oklch(0.2802 0.0517 240.9); /* #0B2A3F */
+  --sky: oklch(0.9483 0.0246 213.2); /* #DDF3FA */
+  --ice: oklch(0.9762 0.0104 209.1); /* #F2FAFC */
+  --paper: oklch(1 0 0);
+  --ink: oklch(0.3223 0.0364 234.6); /* #18313F */
+  --blue: oklch(0.6537 0.1128 231.5); /* #2496C7 */
+  --blue-soft: oklch(0.7887 0.0873 218.4); /* #63C1DD */
+
+  --background: var(--navy);
+  --foreground: var(--paper);
+  --card: var(--navy-2);
+  --card-foreground: var(--paper);
+  --popover: var(--navy-2);
+  --popover-foreground: var(--paper);
+  --primary: var(--blue);
+  --primary-foreground: var(--navy);
+  --secondary: var(--navy-2);
+  --secondary-foreground: var(--sky);
+  --muted: var(--navy-2);
+  --muted-foreground: oklch(0.7 0.028 232);
+  --accent: var(--blue-soft);
+  --accent-foreground: var(--navy);
+  --destructive: oklch(0.577 0.245 27.325);
+  --destructive-foreground: var(--paper);
+  --border: color-mix(in oklab, var(--sky) 18%, transparent);
+  --input: color-mix(in oklab, var(--sky) 22%, transparent);
+  --ring: var(--blue);
+}
+
+@layer base {
+  * {
+    border-color: var(--color-border);
+  }
+
+  html {
+    scroll-behavior: smooth;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  body {
+    background-color: var(--navy);
+    color: var(--paper);
+    font-family: var(--font-sans);
+    overflow-x: hidden;
+  }
+
+  ::selection {
+    background: var(--blue);
+    color: var(--navy);
+  }
+
+  :focus-visible {
+    outline: 2px solid var(--blue-soft);
+    outline-offset: 3px;
+  }
+}
+
+/* ── Typography utilities ─────────────────────────────── */
+
+@utility display {
+  font-family: var(--font-display);
+  font-variation-settings: "wdth" 74;
+  font-stretch: 74%;
+  font-weight: 800;
+  font-style: normal;
+  line-height: 0.86;
+  letter-spacing: -0.015em;
+  text-transform: uppercase;
+}
+
+@utility display-em {
+  font-family: var(--font-display);
+  font-variation-settings: "wdth" 74;
+  font-stretch: 74%;
+  font-weight: 300;
+  font-style: italic;
+  text-transform: uppercase;
+  letter-spacing: -0.005em;
+}
+
+@utility mono {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  line-height: 1.5;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  font-weight: 400;
+}
+
+@utility mono-num {
+  font-family: var(--font-mono);
+  letter-spacing: 0.06em;
+  font-variant-numeric: tabular-nums;
+}
+
+/* ── Word split reveal ────────────────────────────────── */
+
+@utility w-split {
+  display: inline-block;
+  overflow: hidden;
+  vertical-align: bottom;
+}
+
+@utility w-inner {
+  display: inline-block;
+  transform: translateY(105%);
+  opacity: 0;
+  transition:
+    transform 0.9s cubic-bezier(0.16, 1, 0.3, 1),
+    opacity 0.9s cubic-bezier(0.16, 1, 0.3, 1);
+  transition-delay: var(--d, 0ms);
+}
+
+.is-in .w-inner {
+  transform: translateY(0);
+  opacity: 1;
+}
+
+/* ── Generic element reveal ───────────────────────────── */
+
+@utility rise {
+  opacity: 0;
+  transform: translateY(28px);
+  transition:
+    opacity 0.85s cubic-bezier(0.16, 1, 0.3, 1),
+    transform 0.85s cubic-bezier(0.16, 1, 0.3, 1);
+  transition-delay: var(--d, 0ms);
+}
+
+@utility rise-3d {
+  opacity: 0;
+  transform: perspective(1200px) translateY(46px) rotateX(7deg) scale(0.975);
+  transform-origin: 50% 100%;
+  transition:
+    opacity 1s cubic-bezier(0.16, 1, 0.3, 1),
+    transform 1s cubic-bezier(0.16, 1, 0.3, 1);
+  transition-delay: var(--d, 0ms);
+}
+
+.is-in .rise,
+.is-in .rise-3d,
+.rise.is-in,
+.rise-3d.is-in {
+  opacity: 1;
+  transform: perspective(1200px) translateY(0) rotateX(0deg) scale(1);
+}
+
+/* ── Film grain plate ─────────────────────────────────── */
+
+@utility grain-plate {
+  position: fixed;
+  inset: 0;
+  z-index: 90;
+  pointer-events: none;
+  opacity: 0.05;
+  mix-blend-mode: overlay;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='160' height='160' filter='url(%23n)'/%3E%3C/svg%3E");
+  background-size: 160px 160px;
+}
+
+/* ── Hairline rules ───────────────────────────────────── */
+
+@utility rule-top {
+  border-top: 1px solid color-mix(in oklab, currentColor 18%, transparent);
+}
+
+@utility twinkle {
+  animation: twinkle 3.6s ease-in-out infinite;
+  animation-delay: var(--d, 0ms);
+}
+
+@keyframes twinkle {
+  0%,
+  100% {
+    opacity: 0.22;
+  }
+  50% {
+    opacity: 0.95;
+  }
+}
+
+@utility marquee-track {
+  animation: marquee 38s linear infinite;
+}
+
+@keyframes marquee {
+  from {
+    transform: translateX(0);
+  }
+  to {
+    transform: translateX(-50%);
+  }
+}
+
+/* ── Reduced motion ───────────────────────────────────── */
+
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+
+  .w-inner,
+  .rise,
+  .rise-3d {
+    opacity: 1 !important;
+    transform: none !important;
+    transition: none !important;
+  }
+
+  .twinkle,
+  .marquee-track {
+    animation: none !important;
+  }
+
+  [data-motion="scrub"] {
+    transform: none !important;
+    opacity: 1 !important;
+    clip-path: none !important;
+    mix-blend-mode: normal !important;
+  }
+}
