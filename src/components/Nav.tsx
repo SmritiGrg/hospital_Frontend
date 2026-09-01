@@ -3,7 +3,7 @@ export function Nav() {
     <header className="fixed inset-x-0 top-0 z-[80] mix-blend-difference">
       <div className="flex items-center justify-between px-[5vw] py-5">
         <a href="#top" className="mono text-paper">
-          GRAND HOSPITAL
+          CITY HEALTH HOSPITAL
         </a>
         <nav aria-label="Primary" className="hidden gap-8 md:flex">
           {["DEPARTMENTS", "SPECIALISTS", "RATES", "FAQ"].map((l) => (
