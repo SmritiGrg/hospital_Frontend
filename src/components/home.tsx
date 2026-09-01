@@ -610,18 +610,32 @@ export function StageHero() {
   const targetTimeRef = useRef(0);
   const animationFrameRef = useRef<number | null>(null);
   const [duration, setDuration] = useState(0);
+  const [isMobile, setIsMobile] = useState(false);
+
+  useEffect(() => {
+    const mediaQuery = window.matchMedia("(max-width: 767px)");
+    const updateMobile = () => setIsMobile(mediaQuery.matches);
+
+    updateMobile();
+    mediaQuery.addEventListener("change", updateMobile);
+    return () => mediaQuery.removeEventListener("change", updateMobile);
+  }, []);
+
+  // Always enable the scroll-video experience on mobile. The static fallback
+  // remains available for reduced-motion users on tablet and desktop.
+  const staticMode = reduced && !isMobile;
 
   // Only update the desired video time when scroll progress changes.
   // Do not create/cancel the animation loop here.
   useEffect(() => {
-    if (reduced || !duration) return;
+    if (staticMode || !duration) return;
     targetTimeRef.current = Math.min(0.999, Math.max(0, p)) * duration;
-  }, [p, duration, reduced]);
+  }, [p, duration, staticMode]);
 
   // Keep one scrub loop alive. Because `p` is not a dependency, rapid scroll
   // updates cannot repeatedly cancel the loop before the video seeks.
   useEffect(() => {
-    if (reduced || !duration) return;
+    if (staticMode || !duration) return;
 
     const scrubVideo = () => {
       const video = videoRef.current;
@@ -645,41 +659,43 @@ export function StageHero() {
         animationFrameRef.current = null;
       }
     };
-  }, [duration, reduced]);
+  }, [duration, staticMode]);
 
   const arrive = seg(p, 0.86, 1);
 
-  const headlineStyle: CSSProperties = reduced
+  const headlineStyle: CSSProperties = staticMode
     ? {}
     : {
         transform: `translateY(${seg(p, 0.2, 0.5) * -90}px)`,
         opacity: 1 - seg(p, 0.22, 0.48),
       };
 
-  const exteriorCopyStyle: CSSProperties = reduced
+  const exteriorCopyStyle: CSSProperties = staticMode
     ? {}
     : { opacity: 1 - seg(p, 0.18, 0.44) };
 
   const interiorCopyStyle: CSSProperties = {
-    opacity: reduced ? 1 : arrive,
-    transform: reduced ? undefined : `translateY(${(1 - arrive) * 56}px)`,
+    opacity: staticMode ? 1 : arrive,
+    transform: staticMode ? undefined : `translateY(${(1 - arrive) * 56}px)`,
   };
 
   return (
     <section
       ref={ref}
       aria-label="Arrival"
-      style={{ height: reduced ? "100svh" : "400svh" }}
+      style={{
+        height: staticMode ? "100svh" : isMobile ? "320svh" : "400svh",
+      }}
       className="relative"
     >
       <div className="sticky top-0 h-[100svh] w-full overflow-hidden bg-navy">
-        {reduced ? (
+        {staticMode ? (
           <img
             src={hospitalExteriorImg}
             alt="City Health Hospital entrance and reception lobby"
             width={1600}
             height={900}
-            className="absolute inset-0 h-full w-full object-cover"
+            className="absolute inset-0 h-full w-full object-cover object-center"
           />
         ) : (
           <video
@@ -690,7 +706,7 @@ export function StageHero() {
             playsInline
             preload="auto"
             aria-label="Slow forward movement from the hospital entrance into the reception lobby"
-            className="absolute inset-0 h-full w-full object-cover"
+            className="absolute inset-0 h-full w-full object-cover object-center"
             onLoadedMetadata={(event) => {
               const video = event.currentTarget;
               video.pause();
@@ -720,7 +736,7 @@ export function StageHero() {
           }}
         />
 
-        {reduced && (
+        {staticMode && (
           <img
             src={hospitalInteriorImg}
             alt="City Health Hospital reception lobby"
@@ -779,7 +795,7 @@ export function StageHero() {
 
         <div
           className="absolute bottom-5 left-[5vw] z-10 mono text-sky/45"
-          style={{ opacity: reduced ? 0 : 1 - seg(p, 0.08, 0.26) }}
+          style={{ opacity: staticMode ? 0 : 1 - seg(p, 0.08, 0.26) }}
         >
           SCROLL TO ENTER
         </div>
