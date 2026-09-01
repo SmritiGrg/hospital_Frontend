@@ -764,10 +764,10 @@ export function StageHero() {
             style={headlineStyle}
           >
             <h1 className="display max-w-[11ch] text-[clamp(2rem,4.2vw,4.8rem)] leading-[0.92] text-paper">
-              <Words text="ADVANCED CARE" base={260} />
+              <Words text="YOUR HEALTH," base={260} />
               <br />
               <Words
-                text="FOR EVERY TOMORROW."
+                text="OUR GREATEST PRIORITY."
                 em="TOMORROW."
                 base={260 + 2 * STAGGER}
               />
