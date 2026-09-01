@@ -609,6 +609,7 @@ export function StageHero() {
   const videoRef = useRef<HTMLVideoElement>(null);
   const targetTimeRef = useRef(0);
   const animationFrameRef = useRef<number | null>(null);
+  const videoUnlockedRef = useRef(false);
   const [duration, setDuration] = useState(0);
   const [isMobile, setIsMobile] = useState(false);
 
@@ -624,6 +625,39 @@ export function StageHero() {
   // Always enable the scroll-video experience on mobile. The static fallback
   // remains available for reduced-motion users on tablet and desktop.
   const staticMode = reduced && !isMobile;
+
+  // Real iOS Safari may not decode seeked video frames until muted playback
+  // has been unlocked by a genuine touch. Browser responsive mode does not
+  // reproduce this restriction.
+  useEffect(() => {
+    if (staticMode) return;
+
+    const unlockVideo = async () => {
+      const video = videoRef.current;
+      if (!video || videoUnlockedRef.current) return;
+
+      video.muted = true;
+      video.playsInline = true;
+
+      try {
+        await video.play();
+        video.pause();
+        video.currentTime = targetTimeRef.current;
+        videoUnlockedRef.current = true;
+      } catch {
+        // Keep the touch listener available so Safari can try again on the
+        // user's next interaction (for example when Low Power Mode interferes).
+      }
+    };
+
+    window.addEventListener("touchstart", unlockVideo, { passive: true });
+    window.addEventListener("pointerdown", unlockVideo, { passive: true });
+
+    return () => {
+      window.removeEventListener("touchstart", unlockVideo);
+      window.removeEventListener("pointerdown", unlockVideo);
+    };
+  }, [staticMode]);
 
   // Only update the desired video time when scroll progress changes.
   // Do not create/cancel the animation loop here.
@@ -689,24 +723,29 @@ export function StageHero() {
       className="relative"
     >
       <div className="sticky top-0 h-[100svh] w-full overflow-hidden bg-navy">
-        {staticMode ? (
-          <img
-            src={hospitalExteriorImg}
-            alt="City Health Hospital entrance and reception lobby"
-            width={1600}
-            height={900}
-            className="absolute inset-0 h-full w-full object-cover object-center"
-          />
-        ) : (
+        {/* This image remains behind the video. If Safari has not decoded a
+            frame yet, visitors still see the hospital instead of navy. */}
+        <img
+          src={hospitalExteriorImg}
+          alt="City Health Hospital entrance and reception lobby"
+          width={1600}
+          height={900}
+          fetchPriority="high"
+          className="absolute inset-0 h-full w-full object-cover object-center"
+        />
+
+        {!staticMode && (
           <video
             ref={videoRef}
             src={heroVideo}
             poster={hospitalExteriorImg}
+            autoPlay
             muted
             playsInline
             preload="auto"
+            disablePictureInPicture
             aria-label="Slow forward movement from the hospital entrance into the reception lobby"
-            className="absolute inset-0 h-full w-full object-cover object-center"
+            className="absolute inset-0 z-[1] h-full w-full object-cover object-center"
             onLoadedMetadata={(event) => {
               const video = event.currentTarget;
               video.pause();
@@ -724,11 +763,19 @@ export function StageHero() {
               // first frame before scroll scrubbing begins.
               video.currentTime = Math.min(0.01, loadedDuration);
             }}
+            onCanPlay={(event) => {
+              const video = event.currentTarget;
+              video.pause();
+
+              if (duration > 0) {
+                video.currentTime = targetTimeRef.current;
+              }
+            }}
           />
         )}
 
         <div
-          className="absolute inset-0"
+          className="absolute inset-0 z-[2]"
           style={{
             opacity: hydrated ? 1 - seg(p, 0.75, 0.96) * 0.45 : 1,
             background:
